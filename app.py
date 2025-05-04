@@ -33,7 +33,7 @@ if uploaded_file:
             if total_participants < 30:
                 st.warning("參加者少於 30 位，請確認人數是否足夠。")
 
-            winners = unique_df.sample(n=min(30, total_participants), random_state=42).reset_index(drop=True)
+            winners = unique_df.sample(n=min(30, total_participants)).reset_index(drop=True)
 
             rice_winners = winners.iloc[:20].reset_index(drop=True)
             rice_winners.insert(0, "編號", range(1, len(rice_winners) + 1))
