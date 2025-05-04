@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import random
 from io import BytesIO
 
 st.title("🎁 IG留言抽獎系統")
@@ -32,32 +33,21 @@ if uploaded_file:
             if total_participants < 30:
                 st.warning("參加者少於 30 位，請確認人數是否足夠。")
 
-            # 指定中獎者
-            hero_row = unique_df[unique_df['Name'] == 'hero.0608']
-            remaining_df = unique_df[unique_df['Name'] != 'hero.0608']
+            winners = unique_df.sample(n=min(30, total_participants)).reset_index(drop=True)
 
-            # 確保總人數不超過 30
-            remaining_needed = min(29, remaining_df.shape[0])
-            random_winners = remaining_df.sample(n=remaining_needed, random_state=None).reset_index(drop=True)
-
-            # 合併 hero 與隨機得獎者
-            winners = pd.concat([hero_row, random_winners], ignore_index=True).reset_index(drop=True)
-
-            # 分組
             rice_winners = winners.iloc[:20].reset_index(drop=True)
             rice_winners.insert(0, "編號", range(1, len(rice_winners) + 1))
 
             bowl_winners = winners.iloc[20:30].reset_index(drop=True)
             bowl_winners.insert(0, "編號", range(1, len(bowl_winners) + 1))
 
-            # 顯示得獎名單
             st.write("🍙 飯糰兌換券 得獎名單（20位）")
             st.dataframe(rice_winners[['編號', 'Name', 'Comment']], use_container_width=True, hide_index=True)
 
             st.write("🍛 丼飯五折券 得獎名單（10位）")
             st.dataframe(bowl_winners[['編號', 'Name', 'Comment']], use_container_width=True, hide_index=True)
 
-            # 匯出 Excel
+            # 匯出按鈕
             output = BytesIO()
             with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
                 rice_winners.to_excel(writer, index=False, sheet_name='飯糰兌換券')
